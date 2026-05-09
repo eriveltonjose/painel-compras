@@ -118,6 +118,26 @@
             background: #dc2626;
         }
 
+        .badge {
+            padding: 4px 10px;
+            border-radius: 20px;
+            color: white;
+            font-size: 12px;
+            font-weight: bold;
+        }
+
+        .badge.urgente {
+            background: #dc2626;
+        }
+
+        .badge.alta {
+            background: #f59e0b;
+        }
+
+        .badge.normal {
+            background: #2563eb;
+        }
+
         @keyframes piscar {
             0% { background-color: #fff; }
             50% { background-color: #fde047; }
@@ -127,6 +147,41 @@
         .compra.alerta {
             animation: piscar 1s ease-in-out 3;
             border: 2px solid #f59e0b;
+        }
+
+        @keyframes alertaCritico {
+            0% {
+                box-shadow: 0 0 0 0 rgba(220, 38, 38, 0.8);
+                transform: scale(1);
+            }
+
+            70% {
+                box-shadow: 0 0 0 14px rgba(220, 38, 38, 0);
+                transform: scale(1.01);
+            }
+
+            100% {
+                box-shadow: 0 0 0 0 rgba(220, 38, 38, 0);
+                transform: scale(1);
+            }
+        }
+
+        .compra.critico {
+            border: 3px solid #dc2626 !important;
+            background: #fff1f2 !important;
+            animation: alertaCritico 1.2s infinite !important;
+        }
+
+        .compra.critico::before {
+            content: "⚠ Processo parado há mais de 5 dias";
+            display: block;
+            background: #dc2626;
+            color: white;
+            padding: 7px 10px;
+            border-radius: 6px;
+            font-size: 12px;
+            font-weight: bold;
+            margin-bottom: 10px;
         }
 
         @media (max-width: 1200px) {
@@ -180,10 +235,33 @@
                 <h2>{{ coluna.nome }} ({{ coluna.compras|length }})</h2>
 
                 {% for compra in coluna.compras %}
-                    <div class="compra" data-id="{{ compra.id }}" data-status="{{ status_codigo }}">
+                    <div class="compra{% if compra.dias_parado > 5 %} critico{% endif %}" data-id="{{ compra.id }}" data-status="{{ status_codigo }}">
                         <h3>{{ compra.titulo }}</h3>
+
                         <p>{{ compra.descricao }}</p>
+
                         <p class="valor">R$ {{ compra.valor }}</p>
+
+                        <p><strong>Solicitante:</strong> {{ compra.solicitante }}</p>
+
+                        <p><strong>Fornecedor:</strong> {{ compra.fornecedor }}</p>
+
+                        <p>
+                            <strong>Prioridade:</strong>
+
+                            {% if compra.prioridade == "Urgente" %}
+                                <span class="badge urgente">Urgente</span>
+                            {% elif compra.prioridade == "Alta" %}
+                                <span class="badge alta">Alta</span>
+                            {% else %}
+                                <span class="badge normal">Normal</span>
+                            {% endif %}
+                        </p>
+
+                        <p>
+                            <strong>Dias parado:</strong>
+                            {{ compra.dias_parado }} dias
+                        </p>
 
                         <div class="botoes">
                             <a class="botao" href="#">Em aprovação</a>
