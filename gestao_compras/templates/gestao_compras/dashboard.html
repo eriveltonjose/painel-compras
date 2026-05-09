@@ -23,18 +23,17 @@
         }
 
         .cards {
-            display: flex;
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
             gap: 20px;
             margin-bottom: 30px;
-            flex-wrap: wrap;
         }
 
         .card {
             background: white;
             padding: 25px;
             border-radius: 12px;
-            flex: 1;
-            min-width: 220px;
+            min-width: 0;
             box-shadow: 0 4px 10px rgba(0,0,0,0.08);
         }
 
@@ -145,8 +144,23 @@
         }
 
         .compra.alerta {
-            animation: piscar 1s ease-in-out 3;
-            border: 2px solid #f59e0b;
+            animation: piscar 0.8s ease-in-out 6;
+            border: 3px solid #f59e0b !important;
+            background: #fef9c3 !important;
+            position: relative;
+        }
+
+        .compra.alerta::after {
+            content: "🔄 Status atualizado";
+            position: absolute;
+            top: -12px;
+            right: 10px;
+            background: #f59e0b;
+            color: white;
+            padding: 5px 10px;
+            border-radius: 20px;
+            font-size: 11px;
+            font-weight: bold;
         }
 
         @keyframes alertaCritico {
@@ -184,6 +198,67 @@
             margin-bottom: 10px;
         }
 
+        .botao-historico {
+            border: none;
+            cursor: pointer;
+        }
+
+        .timeline {
+            display: none;
+            margin-top: 14px;
+            padding-left: 12px;
+            border-left: 3px solid #2563eb;
+        }
+
+        .timeline.aberta {
+            display: block;
+        }
+
+        .timeline-item {
+            background: #f9fafb;
+            border-radius: 8px;
+            padding: 10px;
+            margin-bottom: 10px;
+        }
+
+        .timeline-item strong {
+            color: #111827;
+            font-size: 13px;
+        }
+
+        .timeline-item p {
+            margin: 5px 0;
+            font-size: 13px;
+        }
+
+        .timeline-item small {
+            color: #6b7280;
+        }
+
+        .sem-historico {
+            color: #6b7280;
+            font-size: 13px;
+        }
+        
+        .filtros {
+        display: flex;
+        gap: 12px;
+        margin-bottom: 25px;
+        flex-wrap: wrap;
+        }
+
+        .filtros input,
+        .filtros select {
+        padding: 12px;
+        border: 1px solid #d1d5db;
+        border-radius: 8px;
+        font-size: 14px;
+        }
+
+        .filtros input {
+        min-width: 320px;
+        }
+        
         @media (max-width: 1200px) {
             .kanban {
                 grid-template-columns: repeat(2, 1fr);
@@ -225,9 +300,47 @@
             <h3>Valor Total Estimado</h3>
             <div class="numero">R$ {{ valor_total }}</div>
         </div>
+
+        <div class="card">
+            <h3>Compras Urgentes</h3>
+            <div class="numero">{{ compras_urgentes }}</div>
+        </div>
+
+        <div class="card">
+            <h3>Processos Críticos</h3>
+            <div class="numero">{{ processos_criticos }}</div>
+        </div>
+
+        <div class="card">
+            <h3>Aguardando Diretoria</h3>
+            <div class="numero">{{ aguardando_diretoria }}</div>
+        </div>
+
+        <div class="card">
+            <h3>Aguardando Pagamento</h3>
+            <div class="numero">{{ aguardando_pagamento }}</div>
+        </div>
     </div>
 
     <a class="admin" href="/admin/">Acessar Administração</a>
+        <div class="filtros">
+        <input type="text" id="busca" placeholder="Buscar compra, fornecedor ou solicitante...">
+
+        <select id="filtroPrioridade">
+            <option value="">Todas as prioridades</option>
+            <option value="Urgente">Urgente</option>
+            <option value="Alta">Alta</option>
+            <option value="Normal">Normal</option>
+        </select>
+
+        <select id="filtroStatus">
+            <option value="">Todos os status</option>
+            {% for status_codigo, coluna in kanban.items %}
+                <option value="{{ status_codigo }}">{{ coluna.nome }}</option>
+            {% endfor %}
+        </select>
+
+    </div>
 
     <div class="kanban">
         {% for status_codigo, coluna in kanban.items %}
@@ -235,7 +348,11 @@
                 <h2>{{ coluna.nome }} ({{ coluna.compras|length }})</h2>
 
                 {% for compra in coluna.compras %}
-                    <div class="compra{% if compra.dias_parado > 5 %} critico{% endif %}" data-id="{{ compra.id }}" data-status="{{ status_codigo }}">
+                    <div class="compra{% if compra.dias_parado > 5 %} critico{% endif %}"
+                        data-id="{{ compra.id }}"
+                        data-status="{{ status_codigo }}"
+                        data-prioridade="{{ compra.prioridade }}"
+                        data-texto="{{ compra.titulo }} {{ compra.descricao }} {{ compra.solicitante }} {{ compra.fornecedor }}">
                         <h3>{{ compra.titulo }}</h3>
 
                         <p>{{ compra.descricao }}</p>
@@ -264,11 +381,19 @@
                         </p>
 
                         <div class="botoes">
-                            <a class="botao" href="#">Em aprovação</a>
-                            <a class="botao" href="#">Aprovar</a>
-                            <a class="botao" href="#">Cotação</a>
-                            <a class="botao finalizar" href="#">Finalizar</a>
-                            <a class="botao cancelar" href="#">Cancelar</a>
+                            <button class="botao botao-historico" type="button">Ver histórico</button>
+                        </div>
+
+                        <div class="timeline">
+                            {% for item in compra.historicos.all %}
+                                <div class="timeline-item">
+                                    <strong>{{ item.data }}</strong>
+                                    <p>{{ item.acao }}</p>
+                                    <small>{{ item.usuario }}</small>
+                                </div>
+                            {% empty %}
+                                <p class="sem-historico">Sem histórico disponível.</p>
+                            {% endfor %}
                         </div>
                     </div>
                 {% empty %}
@@ -283,6 +408,7 @@
 <script>
 document.addEventListener("DOMContentLoaded", () => {
     const cards = document.querySelectorAll(".compra");
+    const filtroStatus = document.getElementById("filtroStatus");
 
     cards.forEach(card => {
         const id = card.dataset.id;
@@ -296,13 +422,60 @@ document.addEventListener("DOMContentLoaded", () => {
 
             setTimeout(() => {
                 card.classList.remove("alerta");
-            }, 3000);
+            }, 5000);
         }
 
         localStorage.setItem(chave, status);
     });
 });
+document.querySelectorAll(".botao-historico").forEach(botao => {
+    botao.addEventListener("click", () => {
+        const card = botao.closest(".compra");
+        const timeline = card.querySelector(".timeline");
+
+        timeline.classList.toggle("aberta");
+
+        if (timeline.classList.contains("aberta")) {
+            botao.textContent = "Ocultar histórico";
+        } else {
+            botao.textContent = "Ver histórico";
+        }
+    });
+});
+
+const campoBusca = document.getElementById("busca");
+const filtroPrioridade = document.getElementById("filtroPrioridade");
+
+function aplicarFiltros() {
+    const termo = campoBusca.value.toLowerCase();
+    const prioridade = filtroPrioridade.value;
+    const status = filtroStatus.value;
+
+    document.querySelectorAll(".compra").forEach(card => {
+        const texto = card.dataset.texto.toLowerCase();
+        const prioridadeCard = card.dataset.prioridade;
+
+        const passouBusca = texto.includes(termo);
+        const statusCard = card.dataset.status;
+
+        const passouPrioridade = !prioridade || prioridadeCard === prioridade;
+        const passouStatus = !status || statusCard === status;
+
+        if (passouBusca && passouPrioridade && passouStatus) {
+        } else {
+            card.style.display = "none";
+        }
+    });
+}
+
+campoBusca.addEventListener("input", aplicarFiltros);
+filtroPrioridade.addEventListener("change", aplicarFiltros);
+filtroStatus.addEventListener("change", aplicarFiltros);
+setInterval(() => {
+    location.reload();
+}, 30000);
 </script>
+
 
 </body>
 </html>

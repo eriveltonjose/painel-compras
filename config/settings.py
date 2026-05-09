@@ -39,6 +39,7 @@ INSTALLED_APPS = [
     'django.contrib.staticfiles',
 
     'gestao_compras',  
+    'compras'
 ]
 
 MIDDLEWARE = [

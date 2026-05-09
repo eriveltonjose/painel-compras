@@ -48,11 +48,34 @@ def buscar_compras_wbc():
         "titulo": "Compra de Ar Condicionado",
         "descricao": "Instalação de novos equipamentos",
         "valor": 24000,
-        "status": "pedido_tr",
+       # "status": "pedido_tr",
+        "status": "aguardando_nota",
         "solicitante": "Juliana Costa",
         "fornecedor": "Clima Frio",
         "prioridade": "Urgente",
         "dias_parado": 8,
+        "historico": [
+        {
+            "data": "09/05/2026 09:10",
+            "acao": "Solicitação criada",
+            "usuario": "Juliana Costa",
+        },
+        {
+            "data": "09/05/2026 10:30",
+            "acao": "Solicitação liberada pela diretoria",
+            "usuario": "Diretoria",
+        },
+        {
+            "data": "09/05/2026 14:00",
+            "acao": "Pedido/TR gerado",
+            "usuario": "Suprimentos",
+        },
+        {
+            "data": "09/05/2026 15:20",
+            "acao": "Status alterado para Aguardando Nota Fiscal",
+            "usuario": "Sistema WBC",
+        },
+        ],
     },
 ]
 

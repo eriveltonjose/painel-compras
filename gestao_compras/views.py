@@ -1,10 +1,10 @@
-from .services_wbc import buscar_compras_wbc, ETAPAS_WBC
-from django.shortcuts import render, redirect, get_object_or_404
-from django.db.models import Sum, Count
-from .models import SolicitacaoCompra
+from django.shortcuts import render
+from compras.models import Compra
+from .services_wbc import ETAPAS_WBC
+
 
 def dashboard(request):
-    compras_wbc = buscar_compras_wbc()
+    compras_wbc = Compra.objects.all()
 
     kanban = {}
 
@@ -15,22 +15,47 @@ def dashboard(request):
         }
 
     for compra in compras_wbc:
-        status = compra.get("status")
+        status = compra.status
 
         if status in kanban:
             kanban[status]["compras"].append(compra)
 
-    total_solicitacoes = len(compras_wbc)
-    compras_abertas = len([
-        c for c in compras_wbc
-        if c.get("status") not in ["movimentacao_obrigacao"]
-    ])
+    total_solicitacoes = compras_wbc.count()
+
+    compras_abertas = compras_wbc.exclude(
+        status__in=["pago", "cancelado"]
+    ).count()
+
     valor_total = sum([
-        c.get("valor", 0) or 0
-        for c in compras_wbc
+        compra.valor or 0
+        for compra in compras_wbc
     ])
 
+    compras_urgentes = compras_wbc.filter(
+        prioridade="Urgente"
+    ).count()
+
+    processos_criticos = compras_wbc.filter(
+        dias_parado__gt=5
+    ).count()
+
+    aguardando_diretoria = compras_wbc.filter(
+        status__in=[
+            "aguardando_liberacao",
+            "aguardando_aprovacao_final",
+            "pagamento_liberado"
+        ]
+    ).count()
+
+    aguardando_pagamento = compras_wbc.filter(
+        status="aguardando_pagamento"
+    ).count()
+
     return render(request, "gestao_compras/dashboard.html", {
+        "compras_urgentes": compras_urgentes,
+        "processos_criticos": processos_criticos,
+        "aguardando_diretoria": aguardando_diretoria,
+        "aguardando_pagamento": aguardando_pagamento,
         "kanban": kanban,
         "total_solicitacoes": total_solicitacoes,
         "compras_abertas": compras_abertas,
