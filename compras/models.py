@@ -13,6 +13,7 @@ class Compra(models.Model):
         ("cotacao_encerrada", "Cotação Encerrada"),
         ("aguardando_aprovacao_final", "Aguardando Aprovação Final"),
         ("pedido_tr", "Pedido / TR"),
+        ("adiantamento_fornecedor", "Adiantamento ao Fornecedor"),
         ("aguardando_nota", "Aguardando Nota Fiscal"),
         ("nota_lancada", "Nota Lançada"),
         ("aguardando_pagamento", "Aguardando Pagamento"),
@@ -30,6 +31,10 @@ class Compra(models.Model):
 
     solicitante = models.CharField(max_length=150, blank=True)
     fornecedor = models.CharField(max_length=150, blank=True)
+    
+    departamento = models.CharField(max_length=150, blank=True)
+    numero_solicitacao = models.CharField(max_length=50, blank=True)
+    quantidade = models.DecimalField(max_digits=10, decimal_places=2, default=1)
 
     dias_parado = models.IntegerField(default=0)
 

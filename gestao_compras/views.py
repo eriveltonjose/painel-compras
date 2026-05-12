@@ -51,6 +51,10 @@ def dashboard(request):
         status="aguardando_pagamento"
     ).count()
 
+    total_adiantamento = compras_wbc.filter(
+        status="adiantamento_fornecedor"
+        ).count()
+    
     return render(request, "gestao_compras/dashboard.html", {
         "compras_urgentes": compras_urgentes,
         "processos_criticos": processos_criticos,
@@ -60,4 +64,5 @@ def dashboard(request):
         "total_solicitacoes": total_solicitacoes,
         "compras_abertas": compras_abertas,
         "valor_total": valor_total,
+        "total_adiantamento": total_adiantamento,
     })

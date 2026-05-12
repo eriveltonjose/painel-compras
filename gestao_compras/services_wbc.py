@@ -89,6 +89,7 @@ ETAPAS_WBC = {
     "cotacao_encerrada": "Cotação Encerrada",
     "aguardando_aprovacao_final": "Aguardando Aprovação Final",
     "pedido_tr": "Pedido / TR",
+    "adiantamento_fornecedor": "Adiantamento ao Fornecedor",
     "aguardando_nota": "Aguardando Nota Fiscal",
     "nota_lancada": "Nota Lançada",
     "aguardando_pagamento": "Aguardando Pagamento",
